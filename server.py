@@ -2,6 +2,7 @@ from flask import Flask, request
 import base64
 import os
 import banco
+import shutil
 from datetime import datetime
 from seeImage import le_imagem
 from image_monitor import ImageMonitor
@@ -29,7 +30,16 @@ def upload_image():
         file.write(base64.b64decode(data))
     filename = "imagem"+get_timestamp()+".jpg"
     os.rename("received_image.jpg",filename)
+    
+    # Verificar se o diretório de destino existe
+    diretorio_destino = '\\img'
+    if not os.path.exists(diretorio_destino):
+        os.makedirs(diretorio_destino)  # Cria o diretório, se não existir
+    
     txt = le_imagem(filename)
+    
+    shutil.move(filename, diretorio_destino)
+    
     txt = banco.extrair_palavras_chave(txt)
     txt = banco.encontrar_melhor_resultado(txt)
     txt = txt['poema']
